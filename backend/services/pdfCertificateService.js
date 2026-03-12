@@ -23,9 +23,9 @@ const LAYOUTS = {
     name: {
       y: 320,
       size: 26,
-      maxWidth: 380,
+      maxWidth: 420,
       minSize: 14,
-      mask: { centered: true, y: 308, width: 420, height: 48 }
+      mask: { centered: true, y: 304, width: 460, height: 56 }
     },
     dateParts: {
       day: { x: 170, y: 260, size: 14 },
@@ -43,9 +43,9 @@ const LAYOUTS = {
     name: {
       y: 320,
       size: 26,
-      maxWidth: 380,
+      maxWidth: 420,
       minSize: 14,
-      mask: { centered: true, y: 308, width: 420, height: 48 }
+      mask: { centered: true, y: 304, width: 460, height: 56 }
     },
     dateParts: {
       day: { x: 170, y: 260, size: 14 },
@@ -64,9 +64,9 @@ const LAYOUTS = {
     name: {
       y: 330,
       size: 26,
-      maxWidth: 380,
+      maxWidth: 420,
       minSize: 14,
-      mask: { centered: true, y: 326, width: 420, height: 48 }
+      mask: { centered: true, y: 322, width: 460, height: 56 }
     },
     dateParts: {
       day: { x: 170, y: 280, size: 14 },
@@ -305,6 +305,9 @@ async function generateCertificatePdf({ participant, modulesOverride }) {
     year: format(trainingDate, 'yyyy')
   };
 
+  drawMaskedText(page, participant.company, layout.company, font, layout.maskColor);
+  drawMaskedText(page, participant.department, layout.department, font, layout.maskColor);
+
   if (layout.dateParts) {
     const dayMask = resolveMask(layout.dateParts.dayMask, page.getWidth());
     const monthMask = resolveMask(layout.dateParts.monthMask, page.getWidth());
@@ -316,9 +319,6 @@ async function generateCertificatePdf({ participant, modulesOverride }) {
     page.drawText(dateParts.month, { ...layout.dateParts.month, font, color: rgb(0, 0, 0) });
     page.drawText(dateParts.year, { ...layout.dateParts.year, font, color: rgb(0, 0, 0) });
   }
-
-  drawMaskedText(page, participant.company, layout.company, font, layout.maskColor);
-  drawMaskedText(page, participant.department, layout.department, font, layout.maskColor);
 
   if (trainingType === 'Human Factors') {
     drawMaskedText(page, participant.location, layout.location, font, layout.maskColor);

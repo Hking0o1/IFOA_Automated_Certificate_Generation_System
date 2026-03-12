@@ -9,6 +9,10 @@ function parseParticipant(row) {
 }
 
 async function generateCertificate(req, res) {
+  console.log('Certificate request', {
+    id: req.params.id,
+    body: req.body
+  });
   const row = await get('SELECT * FROM participants WHERE id = ?', [req.params.id]);
 
   if (!row) {
