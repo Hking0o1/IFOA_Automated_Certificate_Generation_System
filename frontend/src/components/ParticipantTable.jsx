@@ -28,12 +28,12 @@ function ParticipantTable({ participants, onGenerate, loadingId, search, onSearc
               const isLoading = loadingId === participant.id;
               return (
                 <tr key={participant.id}>
-                  <td>{participant.participant_name}</td>
-                  <td>{participant.company}</td>
-                  <td>{participant.department}</td>
-                  <td>{participant.training_type}</td>
-                  <td>{participant.training_date}</td>
-                  <td>
+                  <td data-label="Name">{participant.participant_name}</td>
+                  <td data-label="Company">{participant.company}</td>
+                  <td data-label="Dept">{participant.department}</td>
+                  <td data-label="Training">{participant.training_type}</td>
+                  <td data-label="Date">{participant.training_date}</td>
+                  <td data-label="Action">
                     <button type="button" onClick={() => onGenerate(participant)} disabled={isLoading}>
                       {isLoading ? (
                         <span className="loading-button">

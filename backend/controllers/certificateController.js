@@ -1,17 +1,11 @@
 const { get } = require('../db/database');
-const { loadTemplate, chooseTemplate, renderTemplate } = require('../services/templateService');
-const { generatePdfBuffer } = require('../services/pdfService');
+const { generateCertificatePdf } = require('../services/pdfCertificateService');
 
 function parseParticipant(row) {
   return {
     ...row,
     modules: JSON.parse(row.modules || '[]')
   };
-}
-
-function validateParticipant(participant) {
-  const requiredFields = ['participant_name', 'company', 'department', 'training_type', 'training_date'];
-  return requiredFields.every((field) => participant[field]);
 }
 
 async function generateCertificate(req, res) {
@@ -29,22 +23,31 @@ async function generateCertificate(req, res) {
     participant.modules = selectedModules;
   }
 
-  if (!validateParticipant(participant)) {
-    res.status(400).json({ error: 'Incomplete participant data' });
+  let pdfBytes;
+  try {
+    const result = await generateCertificatePdf({
+      participant,
+      modulesOverride: Array.isArray(selectedModules) ? selectedModules : undefined
+    });
+
+    if (result.error) {
+      res.status(result.status || 400).json({ error: result.error });
+      return;
+    }
+
+    pdfBytes = result.pdfBytes;
+  } catch (error) {
+    console.error('PDF generation failed', error);
+    res.status(500).json({ error: 'PDF generation failed' });
     return;
   }
-
-  const templateName = chooseTemplate(participant.training_type);
-  const template = await loadTemplate(templateName);
-  const html = renderTemplate(template, participant);
-  const pdfBuffer = await generatePdfBuffer(html, 3);
 
   const safeName = participant.participant_name.replace(/[^a-zA-Z0-9_-]/g, '_');
   const filename = `${safeName}_certificate.pdf`;
 
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-  res.send(pdfBuffer);
+  res.send(Buffer.from(pdfBytes));
 }
 
 module.exports = {

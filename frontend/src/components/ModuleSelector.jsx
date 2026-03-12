@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import LoadingSpinner from './LoadingSpinner';
 
 const MODULE_OPTIONS = ['Air Law', 'Aircraft Systems', 'Navigation', 'Meteorology', 'Human Factors'];
 
@@ -32,7 +33,13 @@ function ModuleSelector({ onConfirm, onCancel, isLoading }) {
             Cancel
           </button>
           <button type="button" onClick={() => onConfirm(selectedModules)} disabled={isLoading}>
-            Generate Certificate
+            {isLoading ? (
+              <span className="loading-button">
+                <LoadingSpinner /> Generating...
+              </span>
+            ) : (
+              'Generate Certificate'
+            )}
           </button>
         </div>
       </div>

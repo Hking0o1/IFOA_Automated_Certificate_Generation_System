@@ -4,12 +4,18 @@ import ModuleSelector from '../components/ModuleSelector';
 import { fetchParticipants, generateCertificate } from '../services/api';
 
 function Dashboard() {
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const [participants, setParticipants] = useState([]);
   const [search, setSearch] = useState('');
   const [loadingId, setLoadingId] = useState(null);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [activeRecurrentParticipant, setActiveRecurrentParticipant] = useState(null);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   useEffect(() => {
     const timeout = setTimeout(async () => {
@@ -37,12 +43,11 @@ function Dashboard() {
       link.download = `${participant.participant_name}_certificate.pdf`;
       link.click();
       URL.revokeObjectURL(url);
-      setMessage('Certificate generated successfully.');
     } catch (requestError) {
       if (requestError.response?.status === 400) {
-        setError('Incomplete participant data');
+        setError('Failed to generate certificate. Please retry.');
       } else {
-        setError('Certificate generation failed. Please retry.');
+        setError('Failed to generate certificate. Please retry.');
       }
     } finally {
       setLoadingId(null);
@@ -50,8 +55,15 @@ function Dashboard() {
     }
   }
 
+  function isRecurrentTraining(value) {
+    return String(value || '')
+      .trim()
+      .toLowerCase()
+      .includes('recurrent');
+  }
+
   function handleGenerateClick(participant) {
-    if (participant.training_type === 'Recurrent') {
+    if (isRecurrentTraining(participant.training_type)) {
       setActiveRecurrentParticipant(participant);
       return;
     }
@@ -59,10 +71,27 @@ function Dashboard() {
   }
 
   const statusClass = useMemo(() => (error ? 'error' : 'success'), [error]);
+  const themeLabel = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
 
   return (
     <main className="dashboard">
-      <h1>Training Certificate Dashboard</h1>
+      <header className="dashboard-header">
+        <div>
+          <p className="eyebrow">IFOA Training Hub</p>
+          <h1>Training Certificate Dashboard</h1>
+          <p className="subtitle">Review participant records and generate compliant certificates in seconds.</p>
+        </div>
+        <button
+          type="button"
+          className="theme-toggle"
+          onClick={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
+          aria-pressed={theme === 'dark'}
+          aria-label={themeLabel}
+        >
+          <span className="theme-indicator" />
+          {theme === 'dark' ? 'Dark mode' : 'Light mode'}
+        </button>
+      </header>
       {(message || error) && <div className={`banner ${statusClass}`}>{error || message}</div>}
       {loadingId && <p className="wait-note">Generating certificate... Please wait</p>}
       <ParticipantTable

@@ -55,13 +55,28 @@ async function initializeDatabase() {
 
   const existing = await get('SELECT COUNT(*) AS count FROM participants');
   if (!existing || existing.count === 0) {
-    const seed = [
+    const baseSeed = [
       ['John Smith', 'Airbus', 'Flight Operations', 'Recurrent', '2026-03-01', JSON.stringify(['Air Law', 'Navigation'])],
       ['Sara Lee', 'Boeing', 'Maintenance', 'Basic', '2026-01-15', JSON.stringify(['Aircraft Systems'])],
       ['Ali Khan', 'Emirates', 'Cabin Services', 'Recurrent', '2026-02-20', JSON.stringify(['Meteorology', 'Human Factors'])]
     ];
 
-    for (const row of seed) {
+    for (const row of baseSeed) {
+      await run(
+        'INSERT INTO participants (participant_name, company, department, training_type, training_date, modules) VALUES (?, ?, ?, ?, ?, ?)',
+        row
+      );
+    }
+  }
+
+  if (existing && existing.count < 6) {
+    const extraSeed = [
+      ['Priya Nair', 'IndiGo', 'HR', 'Human Factors', '2026-02-10', JSON.stringify([])],
+      ['Marcus Lim', 'Singapore Airlines', 'Dispatch', 'Dispatch Graduate', '2026-01-05', JSON.stringify([])],
+      ['Nora Adeyemi', 'Qatar Airways', 'Ground Operations', 'Recurrent', '2026-02-28', JSON.stringify(['Air Law', 'Human Factors'])]
+    ];
+
+    for (const row of extraSeed) {
       await run(
         'INSERT INTO participants (participant_name, company, department, training_type, training_date, modules) VALUES (?, ?, ?, ?, ?, ?)',
         row
