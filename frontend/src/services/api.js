@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://ifoa-automated-certificate-generation.onrender.com/api';
 
 export async function fetchParticipants(search = '') {
   const response = await axios.get(`${API_BASE}/participants`, { params: search ? { search } : {} });
